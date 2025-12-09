@@ -4,8 +4,8 @@
   "type": "module",
   "main": "index.js",
   "dependencies": {
-    "baileys": "6.6.0",
-    "pino": "^8.0.0",
+    "baileys": "6.0.0",
+    "pino": "^8.21.0",
     "qrcode-terminal": "^0.12.0",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
