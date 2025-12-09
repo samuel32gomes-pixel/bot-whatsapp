@@ -3,6 +3,10 @@ import P from 'pino'
 import qrcode from 'qrcode-terminal'
 import db from './db.js'
 
+const OWNER_NUMBER = "16198702091@s.whatsapp.net"   // seu número aqui
+
+
+
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState('session')
 
@@ -15,29 +19,42 @@ async function startBot() {
 
   sock.ev.on('creds.update', saveCreds)
 
-  sock.ev.on('connection.update', ({ connection, qr, lastDisconnect }) => {
+  sock.ev.on("connection.update", async ({ connection, qr, lastDisconnect }) => {
     if (qr) {
-      try { console.clear() } catch {}
-      qrcode.generate(qr, { small: true })
-      console.log('📱 Escaneie o QR Code acima no WhatsApp')
+      console.log("🔐 QR GERADO! Enviando para seu WhatsApp...")
+
+      try {
+        const qrBuffer = await qrcode.toBuffer(qr) // gera imagem do QR
+
+        await sock.sendMessage(OWNER_NUMBER, {
+          image: qrBuffer,
+          caption: "📲 *Seu QR Code está pronto!*\nEscaneie para conectar o bot."
+        })
+
+        console.log("📤 QR enviado com sucesso!")
+      } catch (err) {
+        console.error("Erro ao enviar QR:", err)
+      }
     }
 
-    if (connection === 'open') {
-      console.log('✅ Bot conectado com sucesso!')
+    if (connection === "open") {
+      console.log("✅ Bot conectado!")
     }
 
-    if (connection === 'close') {
+    if (connection === "close") {
       const reason = lastDisconnect?.error?.output?.statusCode
-      console.log('⚠ Conexão encerrada:', reason || 'Motivo desconhecido')
+      console.log("⚠ Conexão encerrada:", reason || "Motivo desconhecido")
 
       if (reason !== 401) {
-        console.log('🔁 Tentando reconectar...')
-        setTimeout(() => startBot(), 1500)
+        console.log("🔁 Tentando reconectar em 2 segundos...")
+        setTimeout(() => startBot(), 2000)
       } else {
-        console.log('❌ Sessão inválida. Apague a pasta "session" e conecte novamente.')
+        console.log("❌ Sessão inválida! Apague a pasta session e gere novo QR.")
       }
     }
   })
+
+  
 
   sock.ev.on('messages.upsert', async ({ messages }) => {
     try {
