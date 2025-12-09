@@ -1,4 +1,4 @@
-import makeWASocket, { useMultiFileAuthState } from "@whiskeysockets/baileys"
+import makeWASocket, { useMultiFileAuthState } from "baileys"
 import P from "pino"
 import qrcode from "qrcode-terminal"
 import db from "./db.js"
